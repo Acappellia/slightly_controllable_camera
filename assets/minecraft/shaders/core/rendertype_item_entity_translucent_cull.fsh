@@ -3,26 +3,16 @@
 
 #version 150
 
-#moj_import <fog.glsl>
-#moj_import <light.glsl>
+#moj_import <minecraft:fog.glsl>
+#moj_import <minecraft:projection.glsl>
+#moj_import <minecraft:dynamictransforms.glsl>
 
 uniform sampler2D Sampler0;
 
-uniform vec4 ColorModulator;
-uniform float FogStart;
-uniform float FogEnd;
-uniform vec4 FogColor;
-
-uniform mat4 ProjMat;
-uniform mat3 IViewRotMat;
-uniform mat4 ModelViewMat;
-
-in float vertexDistance;
+in float sphericalVertexDistance;
+in float cylindricalVertexDistance;
 in vec4 vertexColor;
-in vec4 lightMapColor;
-in vec4 overlayColor;
 in vec2 texCoord0;
-in vec4 normal;
 in float marker;
 in vec4 position0;
 in vec4 position1;
@@ -84,7 +74,7 @@ void main() {
             fragColor = encodeFloat(value);
         } else if (pixel.x < 32) {
             int index = int(pixel.x) - 16;
-            float value = transpose(mat4(IViewRotMat))[index / 4][index % 4];
+            float value = ModelViewMat[index / 4][index % 4];
             fragColor = encodeFloat(value);
         } else if (pixel.x < 35) {
             fragColor = encodeFloat1024(pos[int(pixel.x) - 32]);
@@ -96,12 +86,10 @@ void main() {
         return;
     }
 
-    vec4 color = texture(Sampler0, texCoord0);
+    vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
     if (color.a < 0.1) {
         discard;
     }
-    color *= vertexColor * ColorModulator;
-    color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
-    color *= lightMapColor;
-    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
+
+    fragColor = apply_fog(color, sphericalVertexDistance, cylindricalVertexDistance, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
 }

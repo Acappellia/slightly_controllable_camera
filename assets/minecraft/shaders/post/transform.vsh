@@ -1,11 +1,8 @@
 #version 150
 
-in vec4 Position;
+#moj_import <minecraft:projection.glsl>
 
 uniform sampler2D DiffuseSampler;
-
-uniform mat4 ProjMat;
-uniform vec2 OutSize;
 
 out vec2 texCoord;
 flat out mat4 projection;
