@@ -13,7 +13,7 @@ flat in mat4 projInv;
 flat in mat3 tbn;
 
 void main() {
-    const float zoom = 0.8; // lower values = higher rotation angles, but lower fov and quality
+    const float zoom = 0.75 // lower values = higher rotation angles, but lower fov and quality
     vec2 transformed = texCoord * zoom;
     
     
